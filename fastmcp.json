@@ -1,0 +1,15 @@
+{
+  "name": "linear-api-mcp",
+  "version": "0.1.0",
+  "description": "Extended Linear MCP server for querying initiatives, projects, and documents with full GraphQL support. Provides comprehensive access to Linear workspace data including initiative hierarchies, project details, and associated documentation.",
+  "author": "Linear API MCP",
+  "mcpServers": {
+    "linear-api-mcp": {
+      "command": "uv",
+      "args": ["run", "python", "server.py"],
+      "env": {
+        "LINEAR_API_KEY": "${LINEAR_API_KEY}"
+      }
+    }
+  }
+}
