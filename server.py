@@ -204,16 +204,23 @@ async def _get_project(id: str) -> Dict[str, Any]:
         if not project:
             return {"error": f"Project with ID '{id}' not found"}
 
-        # Format issues
-        issues = []
+        # Format issues and track which ones are in milestones
+        all_issues = []
+        milestone_issue_ids = set()
+
         for issue in project.get("issues", {}).get("nodes", []):
-            issues.append({
+            milestone_id = issue.get("projectMilestone", {}).get("id") if issue.get("projectMilestone") else None
+            if milestone_id:
+                milestone_issue_ids.add(issue["id"])
+
+            all_issues.append({
                 "id": issue["id"],
                 "identifier": issue["identifier"],
                 "title": issue["title"],
                 "state": issue.get("state", {}).get("name") if issue.get("state") else None,
                 "state_type": issue.get("state", {}).get("type") if issue.get("state") else None,
-                "priority": issue.get("priority")
+                "priority": issue.get("priority"),
+                "milestone_id": milestone_id
             })
 
         # Format documents
@@ -243,6 +250,43 @@ async def _get_project(id: str) -> Dict[str, Any]:
                 "name": init["name"]
             })
 
+        # Format milestones with their issues
+        milestones = []
+        for milestone in project.get("projectMilestones", {}).get("nodes", []):
+            # Format issues within this milestone
+            milestone_issues = []
+            for issue in milestone.get("issues", {}).get("nodes", []):
+                milestone_issues.append({
+                    "id": issue["id"],
+                    "identifier": issue.get("identifier"),
+                    "title": issue["title"]
+                })
+
+            milestones.append({
+                "id": milestone["id"],
+                "name": milestone["name"],
+                "description": milestone.get("description"),
+                "target_date": milestone.get("targetDate"),
+                "status": milestone.get("status"),
+                "progress": milestone.get("progress", 0) / 100.0,  # Convert to 0-1 range
+                "sort_order": milestone.get("sortOrder"),
+                "created_at": milestone.get("createdAt"),
+                "updated_at": milestone.get("updatedAt"),
+                "archived_at": milestone.get("archivedAt"),
+                "issues": milestone_issues,
+                "issue_count": len(milestone_issues)
+            })
+
+        # Get issues not in any milestone
+        issues_without_milestone = [
+            {
+                "id": issue["id"],
+                "identifier": issue["identifier"],
+                "title": issue["title"]
+            }
+            for issue in all_issues if not issue["milestone_id"]
+        ]
+
         return {
             "id": project["id"],
             "name": project["name"],
@@ -256,8 +300,10 @@ async def _get_project(id: str) -> Dict[str, Any]:
             } if project.get("lead") else None,
             "teams": teams,
             "initiatives": initiatives,
-            "issues": issues,
+            "issues": all_issues,
+            "issues_without_milestone": issues_without_milestone,
             "documents": documents,
+            "milestones": milestones,
             "target_date": project.get("targetDate"),
             "completed_at": project.get("completedAt"),
             "archived_at": project.get("archivedAt"),
@@ -415,10 +461,10 @@ async def list_projects(
 
 
 @mcp.tool
-async def get_project(
+async def get_project_with_milestones_and_associated_issues(
     id: str = Field(description="The ID of the project to retrieve")
 ) -> Dict[str, Any]:
-    """Get detailed information about a specific project, including its issues and documents"""
+    """Extended get_project feature that retrieves detailed project information including milestones, associated issues, and documents"""
     return await _get_project(id)
 
 

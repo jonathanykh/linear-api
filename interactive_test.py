@@ -38,7 +38,7 @@ async def interactive_menu():
         print("\n1. List Initiatives")
         print("2. Get Initiative by ID")
         print("3. List Projects")
-        print("4. Get Project by ID")
+        print("4. Get Project by ID (with Milestones and Issues)")
         print("5. List Documents")
         print("6. Get Document by ID")
         print("7. Raw GraphQL Query (advanced)")
@@ -89,10 +89,10 @@ async def interactive_menu():
             await pretty_print(result)
 
         elif choice == "4":
-            # Get Project
+            # Get Project with Milestones and Issues
             proj_id = input("Enter Project ID: ").strip()
             if proj_id:
-                print("\nFetching project...")
+                print("\nFetching project with milestones and associated issues...")
                 result = await get_project(id=proj_id)
                 await pretty_print(result)
             else:

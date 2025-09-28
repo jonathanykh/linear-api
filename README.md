@@ -103,9 +103,14 @@ Add the following to your Claude Desktop configuration (`~/Library/Application S
      - `cursor_after` (string): Pagination cursor
      - `cursor_before` (string): Backward pagination cursor
 
-4. **get_project** - Get detailed project information
+4. **get_project_with_milestones_and_associated_issues** - Get detailed project information with milestones and issues
    - Parameters:
      - `id` (string): Project ID
+   - Extended features:
+     - Project milestones with progress and status
+     - Issues within each milestone (id, identifier, title)
+     - Issues not assigned to any milestone
+     - Issue count per milestone
 
 #### Document Tools
 
@@ -134,8 +139,12 @@ list_initiatives(limit=10)
 // Search for specific projects
 list_projects(search="Mobile App", include_archived=false)
 
-// Get detailed information about a specific project
-get_project(id="PROJECT_ID_HERE")
+// Get detailed information about a specific project with milestones and issues
+get_project_with_milestones_and_associated_issues(id="PROJECT_ID_HERE")
+// Returns project details including:
+// - Milestones with their associated issues
+// - Issues not assigned to any milestone
+// - Issue counts per milestone
 
 // List documents for a specific initiative
 list_documents(initiative_id="INITIATIVE_ID", limit=20)

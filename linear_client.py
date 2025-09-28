@@ -277,7 +277,7 @@ class LinearClient:
                         key
                     }
                 }
-                issues(first: 50) {
+                issues(first: 100) {
                     nodes {
                         id
                         title
@@ -287,6 +287,9 @@ class LinearClient:
                             type
                         }
                         priority
+                        projectMilestone {
+                            id
+                        }
                     }
                 }
                 documents(first: 50) {
@@ -302,6 +305,27 @@ class LinearClient:
                     nodes {
                         id
                         name
+                    }
+                }
+                projectMilestones(first: 50) {
+                    nodes {
+                        id
+                        name
+                        description
+                        targetDate
+                        status
+                        progress
+                        sortOrder
+                        createdAt
+                        updatedAt
+                        archivedAt
+                        issues(first: 100) {
+                            nodes {
+                                id
+                                title
+                                identifier
+                            }
+                        }
                     }
                 }
             }
